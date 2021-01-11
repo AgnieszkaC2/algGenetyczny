@@ -1,6 +1,10 @@
 import java.util.Random;
 
 public class AlgGenetyczny {
+
+    public static final int LICZBA_BITOW = 5;
+    public static final double PK_MAX = 0.8;
+
     public static void main(String[] args) {
         AlgGenetyczny ag = new AlgGenetyczny();
         ag.execute();
@@ -11,13 +15,14 @@ public class AlgGenetyczny {
     long chromosomy[] = new long[6];
     double przystosowanie[] = new double[6];
     double przedzial[] = new double[6];
-    long rodzic[] = new long[6];
+
 
     private void execute() {
         init();
         obliczPrzystosowanie();
         sumaKumul();
         ruletka();
+        krzyzowanie();
 
         double suma = 0;
         for (int i = 0; i < 6; i++) {
@@ -27,7 +32,41 @@ public class AlgGenetyczny {
         System.out.println(suma);
     }
 
+    private void krzyzowanie() {
+        for (int i = 0; i < 6; i += 2) {
+            double pk = rnd.nextDouble();
+            int locus = rnd.nextInt(LICZBA_BITOW - 2) + 1;
+            System.out.println("Wartosc pk " + pk);
+            System.out.println("Wartosc locus " + locus);
+            System.out.println("Stary chromosom " + i +" "+ Long.toBinaryString(chromosomy[i]));
+            System.out.println("Stary chromosom " + (i+1) +" "+ Long.toBinaryString(chromosomy[i+1]));
+
+            if (pk < PK_MAX) {
+
+                long przodek1 = (chromosomy[i] >>> (LICZBA_BITOW - locus));
+                przodek1 <<= (LICZBA_BITOW - locus);
+                long tylek1 = (chromosomy[i] ^ przodek1);
+
+                long przodek2 = (chromosomy[i+1] >>> (LICZBA_BITOW - locus));
+                przodek2 <<= (LICZBA_BITOW - locus);
+                long tylek2 = (chromosomy[i+1] ^ przodek2);
+
+                chromosomy [i] = przodek1 | tylek2;
+                chromosomy [i+1] = przodek2 | tylek1;
+
+                System.out.println("Nowy chromosom " + i +" "+ Long.toBinaryString(chromosomy[i]));
+                System.out.println("Nowy chromosom " + (i+1) +" "+ Long.toBinaryString(chromosomy[i+1]));
+            }
+        }
+        for (int i = 0; i < 6; i++) {
+            System.out.println("Nowa populacja " + chromosomy[i]);
+
+        }
+    }
+
     private void ruletka() {
+
+        long rodzic[] = new long[6];
 
         for (int i = 0; i < 6; i++) {
             double traf = rnd.nextDouble();
@@ -35,10 +74,13 @@ public class AlgGenetyczny {
             for (int j = 0; j < 6; j++) {
                 if (traf < przedzial[j]) {
                     rodzic[i] = chromosomy[j];
-                    System.out.println(traf+" "+j+" "+rodzic [i]);
+                    System.out.println(traf + " " + j + " " + rodzic[i]);
                     break;
                 }
             }
+        }
+        for (int i = 0; i < 6; i++) {
+            chromosomy[i] = rodzic[i];
         }
     }
 
