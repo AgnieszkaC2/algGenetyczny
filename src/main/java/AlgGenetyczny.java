@@ -4,6 +4,7 @@ public class AlgGenetyczny {
 
     public static final int LICZBA_BITOW = 5;
     public static final double PK_MAX = 0.8;
+    public static final double PM_MAX = 0.2;
 
     public static void main(String[] args) {
         AlgGenetyczny ag = new AlgGenetyczny();
@@ -19,10 +20,14 @@ public class AlgGenetyczny {
 
     private void execute() {
         init();
-        obliczPrzystosowanie();
-        sumaKumul();
-        ruletka();
-        krzyzowanie();
+        for (int i=0; i<51; i++) {
+            obliczPrzystosowanie();
+            sumaKumul();
+            ruletka();
+            krzyzowanie();
+            mutowanie();
+            System.out.println("**********************************************");
+        }
 
         double suma = 0;
         for (int i = 0; i < 6; i++) {
@@ -32,14 +37,29 @@ public class AlgGenetyczny {
         System.out.println(suma);
     }
 
+    private void mutowanie() {
+        for (int i = 0; i < 6; i++) {
+            double pm = rnd.nextDouble();
+            int locus = rnd.nextInt(LICZBA_BITOW-1)+1;
+            System.out.println("Wartosc pm " + pm);
+            System.out.println("Wartosc locus " + locus);
+            System.out.println("Stary chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
+            if (pm < PM_MAX) {
+                chromosomy [i] ^= 1 << (LICZBA_BITOW - locus);
+
+            }
+            System.out.println("Nowy chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
+        }
+    }
+
     private void krzyzowanie() {
         for (int i = 0; i < 6; i += 2) {
             double pk = rnd.nextDouble();
             int locus = rnd.nextInt(LICZBA_BITOW - 2) + 1;
             System.out.println("Wartosc pk " + pk);
             System.out.println("Wartosc locus " + locus);
-            System.out.println("Stary chromosom " + i +" "+ Long.toBinaryString(chromosomy[i]));
-            System.out.println("Stary chromosom " + (i+1) +" "+ Long.toBinaryString(chromosomy[i+1]));
+            System.out.println("Stary chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
+            System.out.println("Stary chromosom " + (i + 1) + " " + Long.toBinaryString(chromosomy[i + 1]));
 
             if (pk < PK_MAX) {
 
@@ -47,15 +67,15 @@ public class AlgGenetyczny {
                 przodek1 <<= (LICZBA_BITOW - locus);
                 long tylek1 = (chromosomy[i] ^ przodek1);
 
-                long przodek2 = (chromosomy[i+1] >>> (LICZBA_BITOW - locus));
+                long przodek2 = (chromosomy[i + 1] >>> (LICZBA_BITOW - locus));
                 przodek2 <<= (LICZBA_BITOW - locus);
-                long tylek2 = (chromosomy[i+1] ^ przodek2);
+                long tylek2 = (chromosomy[i + 1] ^ przodek2);
 
-                chromosomy [i] = przodek1 | tylek2;
-                chromosomy [i+1] = przodek2 | tylek1;
+                chromosomy[i] = przodek1 | tylek2;
+                chromosomy[i + 1] = przodek2 | tylek1;
 
-                System.out.println("Nowy chromosom " + i +" "+ Long.toBinaryString(chromosomy[i]));
-                System.out.println("Nowy chromosom " + (i+1) +" "+ Long.toBinaryString(chromosomy[i+1]));
+                System.out.println("Nowy chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
+                System.out.println("Nowy chromosom " + (i + 1) + " " + Long.toBinaryString(chromosomy[i + 1]));
             }
         }
         for (int i = 0; i < 6; i++) {
@@ -96,6 +116,7 @@ public class AlgGenetyczny {
         for (int i = 0; i < 6; i++) {
             przystosowanie[i] = 3 * chromosomy[i] + 2;
             suma += przystosowanie[i];
+            System.out.println("przystosowanie["+i+"]="+przystosowanie[i]);
         }
         for (int i = 0; i < 6; i++) {
             przystosowanie[i] /= suma;
