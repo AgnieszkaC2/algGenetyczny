@@ -44,7 +44,7 @@ public class AlgGenetyczny {
         }
         System.out.println("Liczba iteracji wyniosła: " + LbIt);
         for (int i = 0; i < 6; i++) {
-            if (wystepowanieMax[i] == 4) {
+            if (wystepowanieMax[i] == 5) {
                 System.out.println("Wartość maksimum funkcji wyniosła: " + przystosowanie[i]);
                 System.out.println("Wygrany chromosom to chromosom [" + (i + 1) + "] o fenotypie: " + chromosomy[i]);
             }
@@ -53,7 +53,7 @@ public class AlgGenetyczny {
 
     private void sprawdzenieMax() {
         for (int i = 0; i < 6; i++) {
-            if (wystepowanieMax[i] == 4) {
+            if (wystepowanieMax[i] == 5) {
                 znalezionoMax = false;
             }
         }
@@ -68,13 +68,13 @@ public class AlgGenetyczny {
             System.out.println("Stary chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
             if (pm < PmMax) {
                 chromosomy[i] ^= 1 << (LICZBA_BITOW - locus);
-                LbIt++;
             }
             System.out.println("Nowy chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
         }
         System.out.println("********************************************");
         for (int i = 0; i < 6; i++) {
             System.out.println("Nowa populacja: chromosom " + i + " " + Long.toBinaryString(chromosomy[i]) + " fenotyp: " + chromosomy[i]);
+            LbIt++;
         }
     }
 
