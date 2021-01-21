@@ -4,8 +4,9 @@ import java.util.Scanner;
 public class AlgGenetyczny {
 
     public static final int LICZBA_BITOW = 5;
-    public static final int MAX_COUNT = 5;
+    public static final int MAX_COUNT_LIMIT = 5;
     public static final int NO_CHROMOSOME = 6;
+    public static final int ILOSC_POKOLEN_MAX_LIMIT = 5;
 
     Random rnd = new Random();
     Scanner scan = new Scanner(System.in);
@@ -29,13 +30,13 @@ public class AlgGenetyczny {
     private void execute() {
         init();
         int lbIt;
+        obliczPrzystosowanie();
         for (lbIt = 0; !isFinished(); lbIt++) {
-            obliczPrzystosowanie();
             sumaKumul();
             ruletka();
             krzyzowanie();
             mutowanie();
-
+            obliczPrzystosowanie();
         }
         System.out.println("Nowa populacja: ");
         for (int i = 0; i < NO_CHROMOSOME; i++) {
@@ -48,7 +49,9 @@ public class AlgGenetyczny {
     }
 
     private boolean isFinished() {
-        return iloscMax >= MAX_COUNT;
+        System.out.println("iloscMax=" + iloscMax + " iloscPokolenMax=" + iloscPokolenMax);
+        return iloscPokolenMax >= ILOSC_POKOLEN_MAX_LIMIT;
+//        return iloscMax >= MAX_COUNT_LIMIT;
     }
 
     private void mutowanie() {
@@ -122,9 +125,9 @@ public class AlgGenetyczny {
     }
 
     private void sumaKumul() {
-        przedzial[0] = przystosowanie[0];
+        przedzial[0] = przystosowanieProc[0];
         for (int i = 1; i < NO_CHROMOSOME; i++) {
-            przedzial[i] = przystosowanie[i] + przedzial[i - 1];
+            przedzial[i] = przystosowanieProc[i] + przedzial[i - 1];
         }
     }
 
