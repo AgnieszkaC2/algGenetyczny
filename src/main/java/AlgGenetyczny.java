@@ -134,6 +134,7 @@ public class AlgGenetyczny {
     private void obliczPrzystosowanie() {
         long suma = 0;
         double noweMaxPrzyst = 0;
+        double minValue = 0;
         iloscMax = 1;
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             przystosowanie[i] = a * chromosomy[i] * chromosomy[i] * chromosomy[i] + b * chromosomy[i] * chromosomy[i] + c * chromosomy[i] + d;
@@ -152,7 +153,14 @@ public class AlgGenetyczny {
             iloscPokolenMax = 1;
         }
         maxPrzyst = noweMaxPrzyst;
-
+        for (int i = 0; i < NO_CHROMOSOME; i++) {
+            if (minValue > przystosowanie[i]) {
+                minValue = przystosowanie[i];
+            }
+        }
+        for (int i = 0; i < NO_CHROMOSOME; i++) {
+            przystosowanie[i] -= minValue;
+        }
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             przystosowanieProc[i] = przystosowanie[i] / suma;
             System.out.println("Wartość % chromosomu" + i + ": " + ((przystosowanieProc[i]) * 100));
@@ -183,7 +191,6 @@ public class AlgGenetyczny {
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             chromosomy[i] = rnd.nextInt(32);
             System.out.println("Chromosom [" + i + "]  " + Long.toBinaryString(chromosomy[i]) + " o fenotypie: " + chromosomy[i]);
-            // przystosowanieWE [i] = przystosowanie [i];
         }
     }
 }
