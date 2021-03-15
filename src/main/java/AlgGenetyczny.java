@@ -17,9 +17,10 @@ public class AlgGenetyczny {
     private double a, b, c, d;
     private double pkMax;
     double pmMax;
-    private double maxPrzyst;
+    private double maxPrzyst = 0;
     private int iloscPokolenMax;
     private int iloscMax;
+    private long maxPrzystChromosom;
 
 
     public static void main(String[] args) {
@@ -30,14 +31,14 @@ public class AlgGenetyczny {
     private void execute() {
         init();
         int lbIt;
-        obliczPrzystosowanie();
         for (lbIt = 0; !isFinished(); lbIt++) {
+            obliczPrzystosowanie();
             sumaKumul();
             ruletka();
             krzyzowanie();
             mutowanie();
-            obliczPrzystosowanie();
         }
+        obliczPrzystosowanie2();
         System.out.println("Nowa populacja: ");
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             System.out.println("Chromosom [" + (i + 1) + "] " + Long.toBinaryString(chromosomy[i]) + " o fenotypie: " + chromosomy[i]);
@@ -46,29 +47,32 @@ public class AlgGenetyczny {
             System.out.println(" Przystosowanie dla chromosomu [" + (i + 1) + "] wynosi: " + przystosowanie[i]);
         }
         System.out.println("Liczba iteracji wyniosła: " + lbIt);
+        System.out.println("Wartość maksimum funkcji wyniosła: " + maxPrzyst);
+        System.out.println("Wygrany chromosom to chromosom o fenotypie: " + maxPrzystChromosom);
+    }
+
+    private void obliczPrzystosowanie2() {
+        maxPrzyst = 0;
+        for (int i = 0; i < NO_CHROMOSOME; i++) {
+            przystosowanie[i] = a * chromosomy[i] * chromosomy[i] * chromosomy[i] + b * chromosomy[i] * chromosomy[i] + c * chromosomy[i] + d;
+            if (maxPrzyst < przystosowanie[i]) {
+                maxPrzyst = przystosowanie[i];
+                maxPrzystChromosom = chromosomy[i];
+            }
+        }
     }
 
     private boolean isFinished() {
-        System.out.println("iloscMax=" + iloscMax + " iloscPokolenMax=" + iloscPokolenMax);
         return iloscPokolenMax >= ILOSC_POKOLEN_MAX_LIMIT;
-//        return iloscMax >= MAX_COUNT_LIMIT;
     }
 
     private void mutowanie() {
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             double pm = rnd.nextDouble();
             int locus = rnd.nextInt(LICZBA_BITOW - 1) + 1;
-            System.out.println("Wartosc pm " + pm);
-            System.out.println("Wartosc locus " + locus);
-            System.out.println("Stary chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
             if (pm < pmMax) {
                 chromosomy[i] ^= 1 << (LICZBA_BITOW - locus);
             }
-            System.out.println("Nowy chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
-        }
-        System.out.println("********************************************");
-        for (int i = 0; i < NO_CHROMOSOME; i++) {
-            System.out.println("Nowa populacja: chromosom " + i + " " + Long.toBinaryString(chromosomy[i]) + " fenotyp: " + chromosomy[i]);
         }
     }
 
@@ -76,11 +80,6 @@ public class AlgGenetyczny {
         for (int i = 0; i < NO_CHROMOSOME; i += 2) {
             double pk = rnd.nextDouble();
             int locus = rnd.nextInt(LICZBA_BITOW - 2) + 1;
-            System.out.println("Wartosc pk " + pk);
-            System.out.println("Wartosc locus " + locus);
-            System.out.println("Stary chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
-            System.out.println("Stary chromosom " + (i + 1) + " " + Long.toBinaryString(chromosomy[i + 1]));
-
             if (pk < pkMax) {
 
                 long przodek1 = (chromosomy[i] >>> (LICZBA_BITOW - locus));
@@ -93,13 +92,8 @@ public class AlgGenetyczny {
 
                 chromosomy[i] = przodek1 | tylek2;
                 chromosomy[i + 1] = przodek2 | tylek1;
-
-                System.out.println("Nowy chromosom " + i + " " + Long.toBinaryString(chromosomy[i]));
-                System.out.println("Nowy chromosom " + (i + 1) + " " + Long.toBinaryString(chromosomy[i + 1]));
             }
-        }
-        for (int i = 0; i < NO_CHROMOSOME; i++) {
-            System.out.println("Nowa populacja " + chromosomy[i]);
+
         }
     }
 
@@ -113,14 +107,12 @@ public class AlgGenetyczny {
             for (int j = 0; j < NO_CHROMOSOME; j++) {
                 if (traf < przedzial[j]) {
                     rodzic[i] = chromosomy[j];
-                    System.out.println("Wylosowano: " + traf + " w przedziale: " + j + "  Nowy rodzic to: " + rodzic[i]);
                     break;
                 }
             }
         }
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             chromosomy[i] = rodzic[i];
-            System.out.println("Nowa pula rodziców to: " + Long.toBinaryString(rodzic[i]));
         }
     }
 
@@ -134,11 +126,10 @@ public class AlgGenetyczny {
     private void obliczPrzystosowanie() {
         long suma = 0;
         double noweMaxPrzyst = 0;
+        double minValue = 0;
         iloscMax = 1;
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             przystosowanie[i] = a * chromosomy[i] * chromosomy[i] * chromosomy[i] + b * chromosomy[i] * chromosomy[i] + c * chromosomy[i] + d;
-            suma += przystosowanie[i];
-            System.out.println("przystosowanie[" + i + "]=" + przystosowanie[i]);
             if (noweMaxPrzyst < przystosowanie[i]) {
                 noweMaxPrzyst = przystosowanie[i];
                 iloscMax = 1;
@@ -152,10 +143,17 @@ public class AlgGenetyczny {
             iloscPokolenMax = 1;
         }
         maxPrzyst = noweMaxPrzyst;
-
+        for (int i = 0; i < NO_CHROMOSOME; i++) {
+            if (minValue > przystosowanie[i]) {
+                minValue = przystosowanie[i];
+            }
+        }
+        for (int i = 0; i < NO_CHROMOSOME; i++) {
+            przystosowanie[i] -= minValue * 2;
+            suma += przystosowanie[i];
+        }
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             przystosowanieProc[i] = przystosowanie[i] / suma;
-            System.out.println("Wartość % chromosomu" + i + ": " + ((przystosowanieProc[i]) * 100));
         }
     }
 
@@ -182,8 +180,7 @@ public class AlgGenetyczny {
         System.out.println("Populacja początkowa to: ");
         for (int i = 0; i < NO_CHROMOSOME; i++) {
             chromosomy[i] = rnd.nextInt(32);
-            System.out.println("Chromosom [" + i + "]  " + Long.toBinaryString(chromosomy[i]) + " o fenotypie: " + chromosomy[i]);
-            // przystosowanieWE [i] = przystosowanie [i];
+            System.out.println("Chromosom [" + (i+1) + "]  " + Long.toBinaryString(chromosomy[i]) + " o fenotypie: " + chromosomy[i]);
         }
     }
 }
